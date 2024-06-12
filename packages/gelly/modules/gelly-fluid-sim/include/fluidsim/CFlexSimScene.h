@@ -50,6 +50,8 @@ private:
 
 	std::unordered_map<ObjectHandle, ObjectData> objects;
 
+	float scaleDivisor = 1.f;
+
 	// FYI: In FleX, the triangle mesh is the only special case.
 	// Anything else is POD, but since these have meshes,
 	// they need to be managed on the GPU hence the triangle mesh ID.
@@ -63,7 +65,9 @@ private:
 	) const;
 
 public:
-	CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver);
+	CFlexSimScene(
+		NvFlexLibrary *library, NvFlexSolver *solver, float scaleDivisor
+	);
 	~CFlexSimScene() override;
 
 	ObjectHandle CreateObject(const ObjectCreationParams &params) override;

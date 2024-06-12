@@ -35,8 +35,13 @@ static NvFlexCollisionShapeType GetFlexShapeType(ObjectShape shape) {
 	}
 }
 
-CFlexSimScene::CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver)
-	: library(library), solver(solver), objects({}) {
+CFlexSimScene::CFlexSimScene(
+	NvFlexLibrary *library, NvFlexSolver *solver, float scaleDivisor
+)
+	: library(library),
+	  solver(solver),
+	  objects({}),
+	  scaleDivisor(scaleDivisor) {
 	geometry.positions = NvFlexAllocBuffer(
 		library, maxColliders, sizeof(FlexFloat4), eNvFlexBufferHost
 	);
@@ -279,6 +284,7 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 
 	const auto *vertices =
 		reinterpret_cast<const FlexFloat3 *>(params.vertices);
+
 	for (uint i = 0; i < params.vertexCount; i++) {
 		minVertex.x = std::min(minVertex.x, vertices[i].x);
 		minVertex.y = std::min(minVertex.y, vertices[i].y);
@@ -319,8 +325,12 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 		}
 
 		for (uint i = 0; i < params.vertexCount; i++) {
-			static_cast<FlexFloat4 *>(verticesDst)[i] =
-				FlexFloat4{vertices[i].x, vertices[i].y, vertices[i].z, 1.0f};
+			static_cast<FlexFloat4 *>(verticesDst)[i] = FlexFloat4{
+				vertices[i].x / scaleDivisor,
+				vertices[i].y / scaleDivisor,
+				vertices[i].z / scaleDivisor,
+				1.0f
+			};
 		}
 
 		NvFlexUnmap(indicesBuffer);
@@ -374,7 +384,9 @@ ObjectData CFlexSimScene::CreateCapsule(
 	data.rotation[2] = 0.0f;
 	data.rotation[3] = 1.0f;
 
-	data.shapeData = ObjectData::Capsule{params.radius, params.halfHeight};
+	data.shapeData = ObjectData::Capsule{
+		params.radius / scaleDivisor, params.halfHeight / scaleDivisor
+	};
 
 	return data;
 }

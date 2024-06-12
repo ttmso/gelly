@@ -53,6 +53,13 @@ public:
 
 	virtual void SetActiveParticles(int activeParticles) = 0;
 	virtual int GetActiveParticles() = 0;
+
+	// Scale divisors are a way to run a simulation in a local space (you'd
+	// probably want to use this to lower a scale for better
+	// performance/precision) and then scale the results back up to world space
+	// opaquely.
+	virtual float GetScaleDivisor() = 0;
+	virtual void SetScaleDivisor(float scaleDivisor) = 0;
 };
 
 #endif	// GELLY_ISIMDATA_H

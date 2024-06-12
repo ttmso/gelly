@@ -22,6 +22,7 @@ private:
 	int maxFoamParticles = 0;
 	int activeParticles = 0;
 	int activeFoamParticles = 0;
+	float scaleDivisor = 1.f;
 
 public:
 	explicit CD3D11CPUSimData();
@@ -44,6 +45,11 @@ public:
 
 	void SetActiveParticles(int activeParticles) override;
 	int GetActiveParticles() override;
+
+	float GetScaleDivisor() override { return scaleDivisor; }
+	void SetScaleDivisor(float scaleDivisor) override {
+		this->scaleDivisor = scaleDivisor;
+	}
 };
 
 #endif	// GELLY_CD3D11CPUSIMDATA_H
