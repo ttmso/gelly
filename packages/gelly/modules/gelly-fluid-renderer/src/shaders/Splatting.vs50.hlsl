@@ -24,6 +24,7 @@ void SolveForHeight(in float4x4 invClip, out float yMin, out float yMax) {
 
 VS_OUTPUT main(VS_INPUT input) {
     VS_OUTPUT output = (VS_OUTPUT)0;
+	input.Pos.xyz *= g_ScaleDivisor;
     output.Pos = float4(input.Pos.xyz, 1.f);
 
     float4 q1 = input.AnisotropyQ1;

@@ -64,6 +64,9 @@ struct FluidRenderParams {
 
 	float diffuseMotionBlur;
 	float pad[3] = {};
+
+	float scaleDivisor = 1.f;
+	float pad3[3] = {};
 };
 }  // namespace Gelly
 

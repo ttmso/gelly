@@ -18,4 +18,7 @@ cbuffer fluidRender : register(b0) {
 
     float g_DiffuseMotionBlur;
     float3 padding2;
+
+	float g_ScaleDivisor;
+	float3 padding3;
 };

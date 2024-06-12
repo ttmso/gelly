@@ -769,6 +769,7 @@ void CD3D11SplattingFluidRenderer::SetPerFrameParams(
 	// TODO: Can't the shader just use a uint instead of a float?
 	cbufferData.width = static_cast<float>(width);
 	cbufferData.height = static_cast<float>(height);
+	cbufferData.scaleDivisor = simData->GetScaleDivisor();
 
 	util::UpdateCBuffer(&cbufferData, buffers.fluidRenderCBuffer);
 }

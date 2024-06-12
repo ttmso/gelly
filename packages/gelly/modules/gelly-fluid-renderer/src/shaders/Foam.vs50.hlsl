@@ -9,7 +9,8 @@ struct VS_INPUT {
 VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
-    
+    input.Pos.xyz *= g_ScaleDivisor;
+
     float4 ndcPos = mul(g_Projection, mul(g_View, float4(input.Pos.xyz, 1.f)));
     ndcPos /= ndcPos.w;
 
