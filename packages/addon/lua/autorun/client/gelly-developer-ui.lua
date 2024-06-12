@@ -12,6 +12,15 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		local statusInfo = gelly.GetStatus()
 
 		draw.SimpleText(
+			("Gelly %s"):format(gelly.GetVersion()),
+			"ChatFont",
+			ScrW() / 2,
+			10,
+			color_white,
+			TEXT_ALIGN_CENTER
+		)
+
+		draw.SimpleText(
 			("Active GPU: %s"):format(statusInfo.ComputeDeviceName),
 			"ChatFont",
 			ScrW() - 10,
@@ -37,7 +46,7 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		)
 
 		local activePresetName = gellyx.presets.getActivePreset()
-				and gellyx.presets.getActivePreset().Name
+			and gellyx.presets.getActivePreset().Name
 			or "None"
 
 		draw.SimpleText(

@@ -1,5 +1,7 @@
 #include "Scene.h"
 
+constexpr float DEFAULT_SCALE_DIVISOR = 4.f;
+
 Scene::Scene(
 	const std::shared_ptr<IFluidRenderer> &connectedRenderer,
 	const std::shared_ptr<ISimContext> &simContext,
@@ -13,6 +15,7 @@ Scene::Scene(
 	  particles(connectedRenderer, sim),
 	  config(sim) {
 	// link the simulation to the renderer
+	sim->GetSimulationData()->SetScaleDivisor(DEFAULT_SCALE_DIVISOR);
 	sim->SetMaxParticles(maxParticles);
 	connectedRenderer->SetSimData(sim->GetSimulationData());
 	sim->Initialize();

@@ -231,6 +231,7 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 		);
 	}
 
+	float scaleDivisor = simData->GetScaleDivisor();
 	const auto iterators = commandList->GetCommands();
 
 	bool mappingRequired = false;
@@ -255,7 +256,7 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 					solverParams.viscosity = arg.viscosity;
 					solverParams.dynamicFriction = arg.dynamicFriction;
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
-					particleRadius = arg.radius;
+					particleRadius = arg.radius / scaleDivisor;
 					SetupParams();
 				}
 			},
@@ -293,8 +294,6 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 				),
 				_MM_HINT_T0
 			);
-
-			float scaleDivisor = simData->GetScaleDivisor();
 
 			const auto &position = newParticles[i - currentActiveParticles];
 			positions[i] = FlexFloat4{
@@ -379,7 +378,7 @@ void CD3D11FlexFluidSimulation::SetTimeStepMultiplier(float timeStepMultiplier
 void CD3D11FlexFluidSimulation::SetupParams() {
 	// Rule of thumb is to use proportional values to the particle radius, as
 	// the radius is really what determines the properties of the fluid.
-	solverParams.radius = particleRadius;
+	solverParams.radius = particleRadius / simData->GetScaleDivisor();
 	solverParams.gravity[0] = 0.f;
 	solverParams.gravity[1] = 0.f;
 	solverParams.gravity[2] = -600.f / simData->GetScaleDivisor();
@@ -395,9 +394,9 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	// According to the manual, the ratio of radius and rest distance should be
 	// 2:1
 	solverParams.fluidRestDistance =
-		solverParams.radius * 0.73f / simData->GetScaleDivisor();
-	solverParams.solidRestDistance =
-		solverParams.radius * 2.13f / simData->GetScaleDivisor();
+		solverParams.radius *
+		0.73f;	// these distances have already been scaled
+	solverParams.solidRestDistance = solverParams.radius * 2.13f;
 
 	solverParams.anisotropyScale = 1.0f;
 	solverParams.anisotropyMin = 0.1f;
@@ -408,8 +407,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.damping = 0.0f;
 	solverParams.particleCollisionMargin = 1.f / simData->GetScaleDivisor();
 	solverParams.shapeCollisionMargin = 1.f / simData->GetScaleDivisor();
-	solverParams.collisionDistance =
-		solverParams.fluidRestDistance * 0.7f / simData->GetScaleDivisor();
+	solverParams.collisionDistance = solverParams.fluidRestDistance * 0.7f;
 	solverParams.sleepThreshold = 0.0f;
 	solverParams.shockPropagation = 0.0f;
 	solverParams.restitution = 1.0f;

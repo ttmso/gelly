@@ -770,6 +770,9 @@ void CD3D11SplattingFluidRenderer::SetPerFrameParams(
 	cbufferData.width = static_cast<float>(width);
 	cbufferData.height = static_cast<float>(height);
 	cbufferData.scaleDivisor = simData->GetScaleDivisor();
+	cbufferData.particleRadius *=
+		cbufferData.scaleDivisor;  // It's just way easier to do it here.
+	settings.particleRadius = cbufferData.particleRadius;
 
 	util::UpdateCBuffer(&cbufferData, buffers.fluidRenderCBuffer);
 }
