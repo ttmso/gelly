@@ -196,7 +196,7 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	);
 
 	delete scene;
-	scene = new CFlexSimScene(library, solver);
+	scene = new CFlexSimScene(library, solver, simData);
 }
 
 ISimData *CD3D11FlexFluidSimulation::GetSimulationData() { return simData; }
@@ -294,12 +294,21 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 				_MM_HINT_T0
 			);
 
+			float scaleDivisor = simData->GetScaleDivisor();
+
 			const auto &position = newParticles[i - currentActiveParticles];
 			positions[i] = FlexFloat4{
-				position.x, position.y, position.z, particleInverseMass
+				position.x / scaleDivisor,
+				position.y / scaleDivisor,
+				position.z / scaleDivisor,
+				particleInverseMass
 			};
 
-			velocities[i] = FlexFloat3{position.vx, position.vy, position.vz};
+			velocities[i] = FlexFloat3{
+				position.vx / scaleDivisor,
+				position.vy / scaleDivisor,
+				position.vz / scaleDivisor
+			};
 			phases[i] =
 				NvFlexMakePhase(0, eNvFlexPhaseSelfCollide | eNvFlexPhaseFluid);
 
@@ -373,7 +382,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
 	solverParams.gravity[1] = 0.f;
-	solverParams.gravity[2] = -4.f;
+	solverParams.gravity[2] = -600.f / simData->GetScaleDivisor();
 
 	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;
@@ -385,8 +394,10 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.numIterations = 3;
 	// According to the manual, the ratio of radius and rest distance should be
 	// 2:1
-	solverParams.fluidRestDistance = solverParams.radius * 0.73f;
-	solverParams.solidRestDistance = solverParams.radius * 2.13f;
+	solverParams.fluidRestDistance =
+		solverParams.radius * 0.73f / simData->GetScaleDivisor();
+	solverParams.solidRestDistance =
+		solverParams.radius * 2.13f / simData->GetScaleDivisor();
 
 	solverParams.anisotropyScale = 1.0f;
 	solverParams.anisotropyMin = 0.1f;
@@ -395,9 +406,10 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.0f;
-	solverParams.particleCollisionMargin = 1.f;
-	solverParams.shapeCollisionMargin = 1.f;
-	solverParams.collisionDistance = solverParams.fluidRestDistance * 0.7f;
+	solverParams.particleCollisionMargin = 1.f / simData->GetScaleDivisor();
+	solverParams.shapeCollisionMargin = 1.f / simData->GetScaleDivisor();
+	solverParams.collisionDistance =
+		solverParams.fluidRestDistance * 0.7f / simData->GetScaleDivisor();
 	solverParams.sleepThreshold = 0.0f;
 	solverParams.shockPropagation = 0.0f;
 	solverParams.restitution = 1.0f;

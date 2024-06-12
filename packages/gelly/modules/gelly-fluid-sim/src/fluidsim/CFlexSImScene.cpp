@@ -10,6 +10,8 @@
 
 #include <algorithm>
 #include <cmath>
+
+#include "fluidsim/ISimData.h"
 #undef min
 #undef max
 // Would use XMVECTOR but we need to be able to pass this to NvFlex without
@@ -36,12 +38,9 @@ static NvFlexCollisionShapeType GetFlexShapeType(ObjectShape shape) {
 }
 
 CFlexSimScene::CFlexSimScene(
-	NvFlexLibrary *library, NvFlexSolver *solver, float scaleDivisor
+	NvFlexLibrary *library, NvFlexSolver *solver, ISimData *simData
 )
-	: library(library),
-	  solver(solver),
-	  objects({}),
-	  scaleDivisor(scaleDivisor) {
+	: library(library), solver(solver), objects({}), simData(simData) {
 	geometry.positions = NvFlexAllocBuffer(
 		library, maxColliders, sizeof(FlexFloat4), eNvFlexBufferHost
 	);
@@ -148,9 +147,11 @@ void CFlexSimScene::SetObjectPosition(
 		return;
 	}
 
-	object.position[0] = x;
-	object.position[1] = y;
-	object.position[2] = z;
+	float scaleDivisor = simData->GetScaleDivisor();
+
+	object.position[0] = x / scaleDivisor;
+	object.position[1] = y / scaleDivisor;
+	object.position[2] = z / scaleDivisor;
 
 	dirty = true;
 }
@@ -284,15 +285,16 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 
 	const auto *vertices =
 		reinterpret_cast<const FlexFloat3 *>(params.vertices);
+	float scaleDivisor = simData->GetScaleDivisor();
 
 	for (uint i = 0; i < params.vertexCount; i++) {
-		minVertex.x = std::min(minVertex.x, vertices[i].x);
-		minVertex.y = std::min(minVertex.y, vertices[i].y);
-		minVertex.z = std::min(minVertex.z, vertices[i].z);
+		minVertex.x = std::min(minVertex.x, vertices[i].x / scaleDivisor);
+		minVertex.y = std::min(minVertex.y, vertices[i].y / scaleDivisor);
+		minVertex.z = std::min(minVertex.z, vertices[i].z / scaleDivisor);
 
-		maxVertex.x = std::max(maxVertex.x, vertices[i].x);
-		maxVertex.y = std::max(maxVertex.y, vertices[i].y);
-		maxVertex.z = std::max(maxVertex.z, vertices[i].z);
+		maxVertex.x = std::max(maxVertex.x, vertices[i].x / scaleDivisor);
+		maxVertex.y = std::max(maxVertex.y, vertices[i].y / scaleDivisor);
+		maxVertex.z = std::max(maxVertex.z, vertices[i].z / scaleDivisor);
 	}
 
 	NvFlexBuffer *indicesBuffer = NvFlexAllocBuffer(
@@ -384,6 +386,7 @@ ObjectData CFlexSimScene::CreateCapsule(
 	data.rotation[2] = 0.0f;
 	data.rotation[3] = 1.0f;
 
+	float scaleDivisor = simData->GetScaleDivisor();
 	data.shapeData = ObjectData::Capsule{
 		params.radius / scaleDivisor, params.halfHeight / scaleDivisor
 	};

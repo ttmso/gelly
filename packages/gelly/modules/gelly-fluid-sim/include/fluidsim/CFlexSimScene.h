@@ -5,6 +5,7 @@
 
 #include <unordered_map>
 
+#include "ISimData.h"
 #include "ISimScene.h"
 
 /**
@@ -50,7 +51,7 @@ private:
 
 	std::unordered_map<ObjectHandle, ObjectData> objects;
 
-	float scaleDivisor = 1.f;
+	ISimData *simData = nullptr;
 
 	// FYI: In FleX, the triangle mesh is the only special case.
 	// Anything else is POD, but since these have meshes,
@@ -66,7 +67,7 @@ private:
 
 public:
 	CFlexSimScene(
-		NvFlexLibrary *library, NvFlexSolver *solver, float scaleDivisor
+		NvFlexLibrary *library, NvFlexSolver *solver, ISimData *simData
 	);
 	~CFlexSimScene() override;
 
