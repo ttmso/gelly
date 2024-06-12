@@ -1,4 +1,5 @@
 #include "ThicknessStructs.hlsli"
+#include "FluidRenderCBuffer.hlsli"
 
 Buffer<float4> g_Absorption : register(t0);
 
