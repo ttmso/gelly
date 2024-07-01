@@ -5,6 +5,7 @@
 #include "GellyInterfaceRef.h"
 #include "device.h"
 #include "fluidsim/ISimData.h"
+#include "pipeline/compute-pipeline.h"
 #include "pipeline/pipeline.h"
 #include "pipelines/pipeline-info.h"
 #include "renderdoc_app.h"
@@ -14,6 +15,7 @@ namespace gelly {
 namespace renderer {
 namespace splatting {
 using PipelinePtr = std::shared_ptr<Pipeline>;
+using ComputePipelinePtr = std::shared_ptr<ComputePipeline>;
 
 class AbsorptionModifier {
 public:
@@ -46,7 +48,6 @@ public:
 		 * the frame.
 		 */
 		bool enableGPUSynchronization = true;
-		bool enableBackDepthFiltering = false;
 		bool enableFrontDepthFiltering = true;
 	};
 
@@ -81,10 +82,7 @@ private:
 
 	PipelineInfo pipelineInfo;
 	PipelinePtr ellipsoidSplatting;
-	PipelinePtr depthFilteringA;
-	PipelinePtr depthFilteringB;
-	PipelinePtr backDepthFilteringA;
-	PipelinePtr backDepthFilteringB;
+	ComputePipelinePtr depthFiltering;
 	PipelinePtr thicknessExtraction;
 	PipelinePtr frontNormalEstimation;
 
@@ -95,8 +93,6 @@ private:
 	auto CreatePipelines() -> void;
 	auto CreatePipelineInfo() const -> PipelineInfo;
 	auto LinkBuffersToSimData() const -> void;
-
-	auto RunDepthSmoothingFilter(unsigned int iterations) const -> void;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	auto InstantiateRenderDoc() -> RENDERDOC_API_1_1_2 *;

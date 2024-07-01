@@ -66,8 +66,9 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
         float thickness = tex2D(thicknessTex, input.Tex).x;
         float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
         float3 transmission = tex2D(backbufferTex, input.Tex).xyz;
+        float3 normal = tex2D(normalTex, input.Tex).xyz;
 
-        return float4(transmission * absorption, 1.f); // simple underwater effect
+        return float4(normal * 0.5f + 0.5f, 1.f); //float4(transmission * absorption, 1.f); // simple underwater effect
     }
 
     float thickness = tex2D(thicknessTex, input.Tex).x;

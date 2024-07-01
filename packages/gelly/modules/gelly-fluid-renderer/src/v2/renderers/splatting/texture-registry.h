@@ -97,15 +97,18 @@ struct InternalTextures {
 				  .height = height,
 				  .format = DXGI_FORMAT_R32G32_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
-				  .bindFlags =
-					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
+				  .bindFlags = D3D11_BIND_SHADER_RESOURCE |
+							   D3D11_BIND_RENDER_TARGET |
+							   D3D11_BIND_UNORDERED_ACCESS,
 				  .cpuAccessFlags = 0,
 				  .miscFlags = 0,
 				  .arraySize = 1,
 				  .mipLevels = 1,
 				  .name = "Unfiltered Ellipsoid Depth"}
 			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+			 .bindFlags = D3D11_BIND_SHADER_RESOURCE |
+						  D3D11_BIND_RENDER_TARGET |
+						  D3D11_BIND_UNORDERED_ACCESS}
 		)),
 		filteredBackEllipsoidDepth(Texture::CreateTexture(
 			{.device = device,

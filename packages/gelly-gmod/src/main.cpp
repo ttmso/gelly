@@ -33,24 +33,33 @@
 	LUA->PushCFunction(namespace##_##name); \
 	LUA->SetField(-2, #name);
 
+static std::shared_ptr<Device> rendererDevice = nullptr;
+static std::shared_ptr<GModCompositor> compositor = nullptr;
+static std::shared_ptr<Scene> scene = nullptr;
+static std::shared_ptr<ISimContext> simContext = nullptr;
+static std::shared_ptr<IFluidSimulation> sim = nullptr;
+
+#ifdef GELLY_USE_DEBUG_LAYER
+#define OUTPUT_GELLY_D3D_MESSAGES()               \
+	if (rendererDevice) {                         \
+		rendererDevice->OutputAllDebugMessages(); \
+	}
+#else
+#define OUTPUT_GELLY_D3D_MESSAGES()
+#endif
+
 #define START_GELLY_EXCEPTIONS() try {
 #define CATCH_GELLY_EXCEPTIONS()                                 \
 	}                                                            \
 	catch (const std::exception &e) {                            \
 		LOG_ERROR("GELLY EXCEPTION: %s", e.what());              \
+		OUTPUT_GELLY_D3D_MESSAGES()                              \
 		LUA->ThrowError(e.what());                               \
 	}                                                            \
 	catch (...) {                                                \
 		LOG_ERROR("GELLY EXCEPTION: Unknown exception caught!"); \
 		LUA->ThrowError("Unknown exception caught!");            \
 	}
-
-static std::shared_ptr<gelly::renderer::Device> rendererDevice = nullptr;
-static std::shared_ptr<GModCompositor> compositor = nullptr;
-static std::shared_ptr<Scene> scene = nullptr;
-static std::shared_ptr<ISimContext> simContext = nullptr;
-static std::shared_ptr<IFluidSimulation> sim = nullptr;
-static std::shared_ptr<luajit::LuaShared> luaShared = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 100000;
 constexpr int MAXIMUM_PARTICLES = 10000000;
