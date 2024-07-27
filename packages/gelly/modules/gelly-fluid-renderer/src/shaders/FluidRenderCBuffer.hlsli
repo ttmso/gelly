@@ -2,6 +2,7 @@
 // HLSL and C++ to avoid code duplication.
 
 #ifdef __cplusplus
+#include "HLSLTypesInterop.h"
 #define CBUFFER_DECLARATION(name) struct name
 #else
 #define CBUFFER_DECLARATION(name) cbuffer name : register(b0)
@@ -9,20 +10,6 @@
 
 #ifdef __cplusplus
 namespace gelly::renderer::cbuffer {
-struct float4x4 {
-	float m[4][4];
-};
-
-struct float2 {
-	float x;
-	float y;
-};
-
-struct float3 {
-	float x;
-	float y;
-	float z;
-};
 #endif
 CBUFFER_DECLARATION(FluidRenderCBufferData) {
 	float4x4 g_View;
