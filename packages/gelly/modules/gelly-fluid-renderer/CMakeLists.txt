@@ -2,7 +2,27 @@
 
 include(CreateShaderGlueTarget)
 
-create_shader_glue_targets(GellyShaderCompile "Compiling the fluid renderer's shaders" ${GELLY_PRODUCTION_BUILD})
+if (GELLY_USE_NVAPI)
+    include(GetNVAPI)
+    get_nvapi()
+    add_compile_definitions(GELLY_USE_NVAPI)
+    # copy the extension instructions over to the shader directory
+    set(EXTENSION_INSTRUCTION_FILES
+            nvHLSLExtns.h
+            nvHLSLExtnsInternal.h
+            nvShaderExtnEnums.h
+    )
+
+    foreach (EXTENSION_INSTRUCTION_FILE ${EXTENSION_INSTRUCTION_FILES})
+        configure_file(
+                ${NVAPI_PATH}/${EXTENSION_INSTRUCTION_FILE}
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${EXTENSION_INSTRUCTION_FILE}
+                COPYONLY
+        )
+    endforeach ()
+endif ()
+
+create_shader_glue_targets(GellyShaderCompile "Compiling the fluid renderer's shaders" ${GELLY_PRODUCTION_BUILD} ${GELLY_USE_NVAPI})
 add_library(
         gelly_fluid_renderer
         STATIC
@@ -49,6 +69,7 @@ add_library(
         src/v2/renderers/splatting/pipelines/surface-filtering.h
         src/v2/renderers/splatting/splatting-renderer.cpp
         src/v2/renderers/splatting/splatting-renderer.h
+        src/v2/nvapi-extension-slot.h
 )
 
 target_include_directories(
@@ -64,6 +85,14 @@ target_include_directories(
         vendor/renderdoc/renderdoc/api/app
 )
 
+if (GELLY_USE_NVAPI)
+    target_include_directories(
+            gelly_fluid_renderer
+            PUBLIC
+            ${NVAPI_PATH}
+    )
+endif ()
+
 target_link_libraries(
         gelly_fluid_renderer
         PUBLIC
@@ -71,6 +100,14 @@ target_link_libraries(
         d3d11.lib
         dxguid.lib
 )
+
+if (GELLY_USE_NVAPI)
+    target_link_libraries(
+            gelly_fluid_renderer
+            PUBLIC
+            ${NVAPI_PATH}/amd64/nvapi64.lib
+    )
+endif ()
 
 # If tracy is being used we need to link to it
 if (TRACY_ENABLE)

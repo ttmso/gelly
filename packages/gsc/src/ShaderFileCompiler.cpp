@@ -44,6 +44,11 @@ void ShaderFileCompiler::CompileToBytecode() {
 		// emit debug info and disable all optimizations (the zi + od flags)
 		fxcCommand += " /D AOV_ENABLED /Zi /Od";
 	}
+
+	if (isNvapiEnabled) {
+		fxcCommand += " /D NVAPI_ENABLED";
+	}
+
 	fxcCommand += " /E main /Fo ";
 
 	auto tempPath = fs::temp_directory_path();
@@ -100,9 +105,11 @@ void ShaderFileCompiler::CompileToBytecode() {
 }
 
 ShaderFileCompiler::ShaderFileCompiler(
-	ShaderFile shaderFile, bool isDebugEnabled
+	ShaderFile shaderFile, bool isDebugEnabled, bool isNvapiEnabled
 ) :
-	shaderFile{std::move(shaderFile)}, isDebugEnabled(isDebugEnabled) {
+	shaderFile{std::move(shaderFile)},
+	isDebugEnabled(isDebugEnabled),
+	isNvapiEnabled(isNvapiEnabled) {
 	CompileToBytecode();
 }
 

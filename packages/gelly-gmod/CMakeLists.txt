@@ -23,7 +23,7 @@ set(TRACY_DELAYED_INIT ON CACHE BOOL "Don't use tracy's delayed init feature" FO
 add_subdirectory(vendor/tracy)
 add_subdirectory(../gelly "gelly")
 
-create_shader_glue_targets(GellyGModShaderCompile "Compiling the GMod module's shaders" ${GELLY_PRODUCTION_BUILD})
+create_shader_glue_targets(GellyGModShaderCompile "Compiling the GMod module's shaders" ${GELLY_PRODUCTION_BUILD} ${GELLY_USE_NVAPI})
 
 # compute the GBP binaries we'll need to compile (basically just each 'src/binaries/gbp/*.h' and each 'src/binaries/gbp/*.cpp') file
 set(GBP_SOURCE_FILES "")
@@ -120,6 +120,10 @@ add_library(
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
 if (GELLY_ENABLE_RENDERDOC_CAPTURES)
     add_compile_definitions("GELLY_ENABLE_RENDERDOC_CAPTURES")
+endif ()
+
+if (GELLY_USE_NVAPI)
+    add_compile_definitions("GELLY_USE_NVAPI")
 endif ()
 
 target_link_libraries(gelly-gmod

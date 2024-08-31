@@ -13,6 +13,10 @@ generated
 
 # For gsc output
 out
+# For the NVAPI integration, we copy the extension instructions over, but we don't want to add that to the repo
+nvHLSLExtns.h
+nvHLSLExtnsInternal.h
+nvShaderExtnEnums.h
 
 # For the python virtual environment
 venv
@@ -23,3 +27,4 @@ release/garrysmod/lua/bin/*.dll
 release/garrysmod/lua/bin/*.pdb
 release/garrysmod/lua/bin/*.ilk
 release/*.dll
+

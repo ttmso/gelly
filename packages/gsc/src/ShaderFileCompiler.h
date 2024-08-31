@@ -14,6 +14,7 @@ private:
 	ShaderFile shaderFile;
 	ShaderBytecodePtr bytecode;
 	bool isDebugEnabled;
+	bool isNvapiEnabled;
 
 	void CompileToBytecode();
 
@@ -23,7 +24,9 @@ public:
 	 * \note The shader file is moved into the compiler.
 	 */
 	explicit ShaderFileCompiler(
-		ShaderFile shaderFile, bool isDebugEnabled = false
+		ShaderFile shaderFile,
+		bool isDebugEnabled = false,
+		bool isNvapiEnabled = false
 	);
 
 	[[nodiscard]] ShaderBytecodePtr GetBytecode() const;

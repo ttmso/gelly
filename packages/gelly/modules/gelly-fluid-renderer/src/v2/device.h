@@ -15,16 +15,30 @@ namespace renderer {
 class Device {
 public:
 	Device();
+#ifdef GELLY_USE_NVAPI
+	~Device();
+#else
 	~Device() = default;
+#endif
 
 	auto GetRawDevice() -> ComPtr<ID3D11Device>;
 	auto GetRawDeviceContext() -> ComPtr<ID3D11DeviceContext>;
 	auto GetPerformanceMarker() -> ComPtr<ID3DUserDefinedAnnotation>;
-
+#ifdef GELLY_USE_NVAPI
+	/**
+	 * May be false if something went wrong during NVAPI initialization.
+	 * @return true if NVAPI is available, false otherwise
+	 */
+	auto IsNVAPIAvailable() -> bool;
+#endif
 private:
 	ComPtr<ID3D11Device> device;
 	ComPtr<ID3D11DeviceContext> deviceContext;
 	ComPtr<ID3DUserDefinedAnnotation> performanceMarker;
+
+#ifdef GELLY_USE_NVAPI
+	bool nvapiAvailable = false;
+#endif
 
 	auto CreateDevice(ComPtr<ID3D11Device> &device) -> void;
 	auto QueryForPerformanceMarker(

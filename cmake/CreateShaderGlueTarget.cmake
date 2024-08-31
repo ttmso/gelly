@@ -1,13 +1,18 @@
 include(GetAllShaders)
 
-function(create_shader_glue_targets name comment is_production)
+function(create_shader_glue_targets name comment is_production is_nvapi_enabled)
     find_hlsl_files(${CMAKE_CURRENT_SOURCE_DIR}/src/shaders SHADER_FILES)
     # keep track of our output files so we can add them as dependencies
     set(SHADER_OUTPUT_FILES "")
     set(DEBUG_GSC_FLAG -debug false)
+    set(NVAPI_GSC_FLAG -nvapi false)
 
     if (NOT ${is_production})
         set(DEBUG_GSC_FLAG -debug true)
+    endif ()
+
+    if (${is_nvapi_enabled})
+        set(NVAPI_GSC_FLAG -nvapi true)
     endif ()
 
     foreach (SHADER_FILE ${SHADER_FILES})
@@ -24,7 +29,7 @@ function(create_shader_glue_targets name comment is_production)
                 OUTPUT
                 ${SHADER_PARENT_DIR}/out/${SHADER_NAME}.cpp
                 ${SHADER_PARENT_DIR}/out/${SHADER_NAME}.h
-                COMMAND ${GSC_PATH} ${SHADER_FILE} ${DEBUG_GSC_FLAG}
+                COMMAND ${GSC_PATH} ${SHADER_FILE} ${DEBUG_GSC_FLAG} ${NVAPI_GSC_FLAG}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders # critical so that our glue code is generated in the correct directory
                 DEPENDS ${SHADER_FILE} ${GSC_PATH}
                 COMMENT " Compiling shader ${SHADER_NAME}.cpp and ${SHADER_NAME}.h"

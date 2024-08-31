@@ -4,6 +4,7 @@ project(gelly-monorepo)
 option(GELLY_BUILD_GMOD "Build GMod binary module" OFF)
 option(GELLY_PRODUCTION_BUILD "Build in production mode" OFF)
 option(GELLY_USE_DEBUG_LAYER "Build Gelly with D3D11 Debug Layer enabled" OFF)
+option(GELLY_USE_NVAPI "Build Gelly with NVAPI support enabled" OFF)
 
 set(GELLY_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${GELLY_ROOT_DIR}/cmake")
