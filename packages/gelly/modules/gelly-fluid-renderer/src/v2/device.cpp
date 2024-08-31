@@ -1,8 +1,11 @@
 #include "device.h"
 
+#include <d3d11_4.h>
 #include <helpers/throw-informative-exception.h>
 
 #include <stdexcept>
+
+#include "nvapi-check.h"
 
 #ifdef GELLY_USE_NVAPI
 #include <nvShaderExtnEnums.h>
@@ -24,6 +27,8 @@ Device::Device() :
 Device::~Device() {
 	if (NvAPI_Unload() != NVAPI_OK) {
 		printf("[Device::~Device] Failed to unload NVAPI\n");
+	} else {
+		printf("[Device::~Device] NVAPI unloaded\n");
 	}
 }
 #endif
@@ -74,9 +79,7 @@ auto Device::CreateDevice(ComPtr<ID3D11Device> &device) -> void {
 #endif
 
 	auto featureLevel = GetFeatureLevel();
-#ifdef GELLY_USE_NVAPI
-	auto nvapiFeatureLevel = NVAPI_DEVICE_FEATURE_LEVEL_NULL;
-	const auto result = NvAPI_D3D11_CreateDevice(
+	auto result = D3D11CreateDevice(
 		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,
@@ -85,24 +88,9 @@ auto Device::CreateDevice(ComPtr<ID3D11Device> &device) -> void {
 		1,
 		D3D11_SDK_VERSION,
 		device.GetAddressOf(),
-		&featureLevel,
-		deviceContext.GetAddressOf(),
-		&nvapiFeatureLevel
-	);
-#else
-	const auto result = D3D11CreateDevice(
 		nullptr,
-		D3D_DRIVER_TYPE_HARDWARE,
-		nullptr,
-		GetDeviceFlags(),
-		nullptr,
-		0,
-		D3D11_SDK_VERSION,
-		device.GetAddressOf(),
-		&featureLevel,
 		deviceContext.GetAddressOf()
 	);
-#endif
 
 	if (FAILED(result)) {
 		GELLY_RENDERER_THROW(
@@ -111,22 +99,25 @@ auto Device::CreateDevice(ComPtr<ID3D11Device> &device) -> void {
 	}
 
 #ifdef GELLY_USE_NVAPI
-	ComPtr<IUnknown> nvAPIDevice;
+	ComPtr<ID3D11Device5> nvAPIDevice;
 	if (device.As(&nvAPIDevice) != S_OK) {
 		GELLY_RENDERER_THROW(
 			std::runtime_error, "Failed to get NVAPI device from D3D11 device"
 		);
 	}
 
+	CheckNVAPICall(
+		NvAPI_D3D_RegisterDevice(nvAPIDevice.Get()),
+		"Registering D3D11 device with NVAPI"
+	);
+
 	bool isGetSpecialSupported = false;
-	if (NvAPI_D3D11_IsNvShaderExtnOpCodeSupported(
+	CheckNVAPICall(
+		NvAPI_D3D11_IsNvShaderExtnOpCodeSupported(
 			nvAPIDevice.Get(), NV_EXTN_OP_GET_SPECIAL, &isGetSpecialSupported
-		) != NVAPI_OK) {
-		GELLY_RENDERER_THROW(
-			std::runtime_error,
-			"Failed to check if NVAPI extension is supported"
-		);
-	}
+		),
+		"Check if GetSpecial is supported"
+	);
 
 	if (!isGetSpecialSupported) {
 		GELLY_RENDERER_THROW(
@@ -135,18 +126,19 @@ auto Device::CreateDevice(ComPtr<ID3D11Device> &device) -> void {
 		);
 	}
 
-	if (NvAPI_D3D11_SetNvShaderExtnSlot(
+	CheckNVAPICall(
+		NvAPI_D3D11_SetNvShaderExtnSlot(
 			nvAPIDevice.Get(), INSTR_EXTENSION_UAV_SLOT
-		) != NVAPI_OK) {
-		GELLY_RENDERER_THROW(
-			std::runtime_error, "Failed to set NVAPI extension slot"
-		);
-	} else {
-		printf(
-			"[Device::CreateDevice] NVAPI extension slot set to %lu\n",
-			INSTR_EXTENSION_UAV_SLOT
-		);
-	}
+		),
+		"Setting the NVAPI extension slot"
+	);
+
+	printf(
+		"[Device::CreateDevice] NVAPI extension slot set to %lu\n",
+		INSTR_EXTENSION_UAV_SLOT
+	);
+
+	printf("[Device::CreateDevice] NVAPI GetSpecial supported!\n");
 #endif
 }
 
@@ -167,7 +159,7 @@ auto Device::GetFeatureLevel() -> D3D_FEATURE_LEVEL {
 }
 
 auto Device::GetDeviceFlags() -> D3D11_CREATE_DEVICE_FLAG {
-	return D3D11_CREATE_DEVICE_SINGLETHREADED;
+	return static_cast<D3D11_CREATE_DEVICE_FLAG>(0);
 }
 
 }  // namespace renderer

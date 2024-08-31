@@ -70,6 +70,7 @@ add_library(
         src/v2/renderers/splatting/splatting-renderer.cpp
         src/v2/renderers/splatting/splatting-renderer.h
         src/v2/nvapi-extension-slot.h
+        src/v2/nvapi-check.h
 )
 
 target_include_directories(
