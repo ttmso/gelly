@@ -31,7 +31,7 @@ int main(const int argc, char *argv[]) {
 		}
 
 		const auto shaderFile = ShaderFile(shaderFilePath);
-		const auto compiler = ShaderFileCompiler(shaderFile, debug);
+		const auto compiler = ShaderFileCompiler(shaderFile, debug, nvapi);
 		const auto bytecode = compiler.GetBytecode();
 		const auto &file = compiler.GetShaderFile();
 		const auto glueCodeGen = GlueCodeGen(bytecode, file);

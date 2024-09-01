@@ -9,6 +9,11 @@ namespace renderer {
 template <typename ShaderType>
 Shader<ShaderType>::Shader(const ShaderCreateInfo &createInfo) :
 	createInfo(createInfo) {
+#ifdef GELLY_USE_NVAPI
+	if (createInfo.device->IsNVAPIAvailable()) {
+		createInfo.device->SetupExtensionUAVSlot();
+	}
+#endif
 	if constexpr (is_vertex_shader<ShaderType>) {
 		shader = CreateVertexShader();
 	} else if constexpr (is_pixel_shader<ShaderType>) {
@@ -16,6 +21,12 @@ Shader<ShaderType>::Shader(const ShaderCreateInfo &createInfo) :
 	} else if constexpr (is_geometry_shader<ShaderType>) {
 		shader = CreateGeometryShader();
 	}
+#ifdef GELLY_USE_NVAPI
+	if (createInfo.device->IsNVAPIAvailable()) {
+		// disable the extension slot after the shader has been created
+		createInfo.device->SetupExtensionUAVSlot(true);
+	}
+#endif
 }
 
 template <typename ShaderType>

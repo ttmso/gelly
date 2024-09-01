@@ -9,7 +9,7 @@
 
 namespace gelly {
 namespace renderer {
-constexpr NvU32 INSTR_EXTENSION_UAV_SLOT = 63;
+constexpr NvU32 INSTR_EXTENSION_UAV_SLOT = 7;
 }
 }  // namespace gelly
 #endif	// NVAPI_EXTENSION_SLOT_H

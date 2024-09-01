@@ -42,7 +42,7 @@ void ShaderFileCompiler::CompileToBytecode() {
 	if (isDebugEnabled) {
 		// tell our shaders that AOVs are enabled, we also want to
 		// emit debug info and disable all optimizations (the zi + od flags)
-		fxcCommand += " /D AOV_ENABLED /Zi /Od";
+		fxcCommand += " /D AOV_ENABLED /Zi";
 	}
 
 	if (isNvapiEnabled) {

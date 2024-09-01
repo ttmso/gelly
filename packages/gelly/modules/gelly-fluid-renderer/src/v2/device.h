@@ -30,6 +30,7 @@ public:
 	 * @return true if NVAPI is available, false otherwise
 	 */
 	auto IsNVAPIAvailable() -> bool;
+	auto SetupExtensionUAVSlot(bool disable = false) -> void;
 #endif
 private:
 	ComPtr<ID3D11Device> device;

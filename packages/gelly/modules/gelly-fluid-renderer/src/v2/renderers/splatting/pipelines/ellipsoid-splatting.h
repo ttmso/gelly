@@ -48,7 +48,7 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 				{D3D11_RENDER_TARGET_BLEND_DESC{
 					 .BlendEnable = true,  // we do a no-op blend for absorption
 					 .SrcBlend = D3D11_BLEND_ONE,
-					 .DestBlend = D3D11_BLEND_ZERO,
+					 .DestBlend = D3D11_BLEND_ONE,
 					 .BlendOp = D3D11_BLEND_OP_ADD,
 					 .SrcBlendAlpha = D3D11_BLEND_ONE,
 					 .DestBlendAlpha = D3D11_BLEND_ZERO,
@@ -171,12 +171,10 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 				  .clearColor = {1.f, D3D11_FLOAT32_MAX, 1.f, 1.f}
 			  },
 			  OutputTexture{
-				  .texture =
-					  info.outputTextures->thickness,
+				  .texture = info.outputTextures->thickness,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 2,
-				  .clearColor =
-					  {0.f, 0.f, 0.f, 0.f}
+				  .clearColor = {0.f, 0.f, 0.f, 0.f}
 			  }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(SplattingPS, info.device),

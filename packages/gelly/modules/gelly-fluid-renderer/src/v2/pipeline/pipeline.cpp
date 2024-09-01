@@ -4,6 +4,10 @@
 
 #include "validate-pipeline.h"
 
+#ifdef GELLY_USE_NVAPI
+#include "nvapi-extension-slot.h"
+#endif
+
 template <typename... Ts>
 struct overloaded : Ts... {
 	using Ts::operator()...;

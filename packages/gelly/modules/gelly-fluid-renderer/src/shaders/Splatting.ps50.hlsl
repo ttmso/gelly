@@ -2,13 +2,25 @@
 #include "SplattingStructs.hlsli"
 #include "util/SolveQuadratic.hlsli"
 
+#ifdef NVAPI_ENABLED
+#include "util/nv/IntrinsicsSlot.hlsli"
+#include "nvHLSLExtns.h"
+#include "util/nv/Timing.hlsli"
+#endif
+
+#define COMPUTE_HEATMAP_TO_ALBEDO
+
+#if defined(COMPUTE_HEATMAP_TO_ALBEDO) && !defined(NVAPI_ENABLED)
+#error "NVAPI must be enabled to compute heatmap to albedo"
+#endif
+
 float sqr(float x) {
     return x * x;
 }
 
 PS_OUTPUT main(GS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-	
+
 	float4x4 invQuadric = input.InvQuadric;
     float4 position = input.Pos;
 
@@ -24,10 +36,11 @@ PS_OUTPUT main(GS_OUTPUT input) {
         1.f
     );
 
+START_TIMER;
     float4 viewDir = mul(g_InverseProjection, ndcPos);
-
     float4 dir = mul(invQuadric, float4(viewDir.xyz, 0.f));
     float4 origin = invQuadric._m03_m13_m23_m33;
+END_TIMER;
 
     // Solve the quadratic equation
     float a = dot(dir.xyz, dir.xyz);
@@ -35,7 +48,6 @@ PS_OUTPUT main(GS_OUTPUT input) {
     float c = dot(origin.xyz, origin.xyz) - sqr(origin.w);
 
     float minT, maxT;
-
 	[branch]
     if (!SolveQuadratic(a, 2.f * b, c, minT, maxT)) {
         discard;
@@ -50,7 +62,12 @@ PS_OUTPUT main(GS_OUTPUT input) {
     float projectionDepth = rayNDCPos.z * rcp(rayNDCPos.w);
     float eyeDepth = eyePos.z;
 
+	#ifdef COMPUTE_HEATMAP_TO_ALBEDO
+	output.Absorption = float4(dt, 0, 0, 1);
+	#else
 	output.Absorption = float4(input.Absorption.xyz, 1.f);
+	#endif
+
 	output.FrontDepth = float2(projectionDepth, -eyeDepth);
 
     float internalDistance = abs(maxT - minT);

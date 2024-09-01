@@ -43,6 +43,25 @@ auto Device::GetPerformanceMarker() -> ComPtr<ID3DUserDefinedAnnotation> {
 
 #ifdef GELLY_USE_NVAPI
 auto Device::IsNVAPIAvailable() -> bool { return nvapiAvailable; }
+auto Device::SetupExtensionUAVSlot(bool disable) -> void {
+	if (!nvapiAvailable) {
+		GELLY_RENDERER_THROW(
+			std::runtime_error, "Cannot set up extension UAV slot without NVAPI"
+		);
+	}
+
+	CheckNVAPICall(
+		NvAPI_D3D11_SetNvShaderExtnSlot(
+			device.Get(), disable ? ~0u : INSTR_EXTENSION_UAV_SLOT
+		),
+		"Setting the NVAPI extension slot"
+	);
+
+	printf(
+		"[Device::SetupExtensionUAVSlot] NVAPI extension slot set to %lu\n",
+		disable ? ~0u : INSTR_EXTENSION_UAV_SLOT
+	);
+}
 #endif
 
 auto Device::CreateDevice(ComPtr<ID3D11Device> &device) -> void {
@@ -125,18 +144,6 @@ auto Device::CreateDevice(ComPtr<ID3D11Device> &device) -> void {
 			"NVAPI's GetSpecial is not supported on this device"
 		);
 	}
-
-	CheckNVAPICall(
-		NvAPI_D3D11_SetNvShaderExtnSlot(
-			nvAPIDevice.Get(), INSTR_EXTENSION_UAV_SLOT
-		),
-		"Setting the NVAPI extension slot"
-	);
-
-	printf(
-		"[Device::CreateDevice] NVAPI extension slot set to %lu\n",
-		INSTR_EXTENSION_UAV_SLOT
-	);
 
 	printf("[Device::CreateDevice] NVAPI GetSpecial supported!\n");
 #endif

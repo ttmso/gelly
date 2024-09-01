@@ -6,10 +6,13 @@
 #include "source-engine/AmbientCube.hlsli"
 #include "material/Diffuse.hlsli"
 #include "util/CMRMap.hlsli"
+#include "util/TemperatureMap.hlsli"
 
 // useful defines for offline debugging
 //#define NORMALS_VIEW
 //#define NORMALS_VIEW_DEBUG_CURVATURE
+#define ABSORPTION_AS_HEATMAP_VIEW
+
 sampler2D depthTex : register(s0);
 sampler2D normalTex : register(s1);
 sampler2D positionTex : register(s2);
@@ -74,6 +77,10 @@ float3 SampleTransmission(in float2 tex, in float thickness, in float3 pos, in f
 
 #define UNDERWATER_DEPTH_MINIMUM 0.7f
 float4 Shade(VS_INPUT input, float projectedDepth) {
+    #if defined(ABSORPTION_AS_HEATMAP_VIEW)
+        return float4(util::TemperatureMapFloat(tex2D(absorptionTex, input.Tex).x), 1.f);
+    #endif
+    
     if (projectedDepth <= UNDERWATER_DEPTH_MINIMUM) {
         float thickness = tex2D(thicknessTex, input.Tex).x;
         float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
