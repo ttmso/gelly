@@ -14,7 +14,8 @@
 
 namespace gelly {
 namespace renderer {
-auto CheckNVAPICall(NvAPI_Status status, const std::string &context) -> void {
+inline auto CheckNVAPICall(NvAPI_Status status, const std::string &context)
+	-> void {
 	if (status != NVAPI_OK) {
 		NvAPI_ShortString statusString;
 		NvAPI_GetErrorMessage(status, statusString);

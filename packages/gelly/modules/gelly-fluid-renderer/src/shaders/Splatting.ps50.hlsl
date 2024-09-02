@@ -8,7 +8,7 @@
 #include "util/nv/Timing.hlsli"
 #endif
 
-#define COMPUTE_HEATMAP_TO_ALBEDO
+// #define COMPUTE_HEATMAP_TO_ALBEDO
 
 #if defined(COMPUTE_HEATMAP_TO_ALBEDO) && !defined(NVAPI_ENABLED)
 #error "NVAPI must be enabled to compute heatmap to albedo"

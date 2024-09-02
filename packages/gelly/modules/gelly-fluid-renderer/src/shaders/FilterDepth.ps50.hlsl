@@ -3,6 +3,18 @@
 #include "util/EyeToProjDepth.hlsli"
 #include "util/IsUnderwater.hlsli"
 
+#ifdef NVAPI_ENABLED
+#include "util/nv/IntrinsicsSlot.hlsli"
+#include "nvHLSLExtns.h"
+#include "util/nv/Timing.hlsli"
+#endif
+
+// #define NORMAL_ALPHA_AS_HEATMAP
+
+#if defined(NORMAL_ALPHA_AS_HEATMAP) && !defined(NVAPI_ENABLED)
+#error "NORMAL_ALPHA_AS_HEATMAP requires NVAPI_ENABLED to be defined"
+#endif
+
 Texture2D InputDepth : register(t0);
 SamplerState InputDepthSampler : register(s0);
 
@@ -142,14 +154,28 @@ PS_OUTPUT main(VS_OUTPUT input) {
 		return output;
 	}
 
+#ifdef NORMAL_ALPHA_AS_HEATMAP
+START_TIMER;
+#endif
     float3 normal = CreateIsosurfaceNormals(input.Tex);
+#ifdef NORMAL_ALPHA_AS_HEATMAP
+END_TIMER;
+#endif
     if (isnan(normal.x) || isnan(normal.y) || isnan(normal.z)) {
         // return the original normal if the new one is invalid
         normal = InputNormal.SampleLevel(InputNormalSampler, input.Tex, 0).xyz;
+		#ifdef NORMAL_ALPHA_AS_HEATMAP
+		output.FilteredNormal = float4(normal, dt);
+		#else
         output.FilteredNormal = float4(normal, 1.f);
+		#endif
         return output;
     }
 
+#ifdef NORMAL_ALPHA_AS_HEATMAP
+	output.FilteredNormal = float4(normal, dt);
+#else
     output.FilteredNormal = float4(normal, 1.f);
+#endif
     return output;
 }

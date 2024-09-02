@@ -48,7 +48,7 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 				{D3D11_RENDER_TARGET_BLEND_DESC{
 					 .BlendEnable = true,  // we do a no-op blend for absorption
 					 .SrcBlend = D3D11_BLEND_ONE,
-					 .DestBlend = D3D11_BLEND_ONE,
+					 .DestBlend = D3D11_BLEND_ZERO,
 					 .BlendOp = D3D11_BLEND_OP_ADD,
 					 .SrcBlendAlpha = D3D11_BLEND_ONE,
 					 .DestBlendAlpha = D3D11_BLEND_ZERO,
